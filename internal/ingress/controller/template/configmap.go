@@ -19,6 +19,7 @@ package template
 import (
 	"fmt"
 	"net"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -50,6 +51,7 @@ const (
 	nginxStatusIpv6Whitelist = "nginx-status-ipv6-whitelist"
 	proxyHeaderTimeout       = "proxy-protocol-header-timeout"
 	workerProcesses          = "worker-processes"
+	globalAuthURL            = "global-auth-url"
 )
 
 var (
@@ -147,6 +149,25 @@ func ReadConfig(src map[string]string) config.Configuration {
 			} else {
 				klog.Warningf("The code %v is not a valid as HTTP redirect code. Using the default.", val)
 			}
+		}
+	}
+
+	// Verify that the configured global auth is parsable as URL. if not, set the default value
+	if val, ok := conf[globalAuthURL]; ok {
+		delete(conf, globalAuthURL)
+
+		authURL, err := url.Parse(val)
+		if err != nil {
+			glog.Warningf("Global auth location denied, reason: url is not")
+		}
+		if authURL.Scheme == "" {
+			glog.Warningf("Global auth location denied, reason: url scheme is empty")
+		} else if authURL.Host == "" {
+			glog.Warningf("Global auth location denied, reason: url host is empty")
+		} else if strings.Contains(authURL.Host, "..") {
+			glog.Warningf("Global auth location denied, reason: invalid url host")
+		} else {
+			to.GlobalAuthURL = val
 		}
 	}
 

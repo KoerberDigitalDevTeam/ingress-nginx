@@ -606,11 +606,14 @@ func (n *NGINXController) OnUpdate(ingressCfg ingress.Configuration) error {
 		StatusSocket: nginx.StatusSocket,
 		StatusPath:   nginx.StatusPath,
 		StreamSocket: nginx.StreamSocket,
+		
+		GlobalAuthURL:              n.cfg.GlobalAuthURL,
 	}
 
 	tc.Cfg.Checksum = ingressCfg.ConfigurationChecksum
 
 	content, err := n.t.Write(tc)
+
 	if err != nil {
 		return err
 	}
