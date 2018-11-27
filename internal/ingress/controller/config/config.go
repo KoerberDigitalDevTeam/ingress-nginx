@@ -563,6 +563,10 @@ type Configuration struct {
 	// should not get authenticated
 	NoAuthLocations string `json:"no-auth-locations"`
 
+	// GlobalAuthURL is a path to the service where all locations
+	// should be authenticated
+	GlobalAuthURL string `json:"global-auth-url,omitempty"`
+
 	// DisableLuaRestyWAF disables lua-resty-waf globally regardless
 	// of whether there's an ingress that has enabled the WAF using annotation
 	DisableLuaRestyWAF bool `json:"disable-lua-resty-waf"`
@@ -714,6 +718,7 @@ func NewDefault() Configuration {
 		SyslogPort:                   514,
 		NoTLSRedirectLocations:       "/.well-known/acme-challenge",
 		NoAuthLocations:              "/.well-known/acme-challenge",
+		GlobalAuthURL:                "",
 	}
 
 	if klog.V(5) {
@@ -760,6 +765,8 @@ type TemplateConfig struct {
 	StatusSocket string
 	StatusPath   string
 	StreamSocket string
+	
+	GlobalAuthURL              string
 }
 
 // ListenPorts describe the ports required to run the

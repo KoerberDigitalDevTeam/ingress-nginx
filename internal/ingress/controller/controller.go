@@ -96,6 +96,8 @@ type Configuration struct {
 	DynamicCertificatesEnabled bool
 
 	DisableCatchAll bool
+	
+	GlobalAuthURL string
 }
 
 // GetPublishService returns the Service used to set the load-balancer status of Ingresses.
