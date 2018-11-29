@@ -1360,17 +1360,6 @@ stream {
         {{ end }}
         {{ end }}
 
-        {{ if eq $server.Hostname "_" }}
-        # health checks in cloud providers require the use of port {{ $all.ListenPorts.HTTP }}
-        location {{ $all.HealthzURI }} {
-            {{ if $all.Cfg.EnableOpentracing }}
-            opentracing off;
-            {{ end }}
-
-            access_log off;
-            return 200;
-        }
-
         {{ if not (empty $all.Cfg.GlobalAuthURL) }}
         location = /_external-auth-global {
             # internal;
@@ -1396,6 +1385,17 @@ stream {
             proxy_pass $target;
         }
         {{ end }}
+
+        {{ if eq $server.Hostname "_" }}
+        # health checks in cloud providers require the use of port {{ $all.ListenPorts.HTTP }}
+        location {{ $all.HealthzURI }} {
+            {{ if $all.Cfg.EnableOpentracing }}
+            opentracing off;
+            {{ end }}
+
+            access_log off;
+            return 200;
+        }
 
         # this is required to avoid error if nginx is being monitored
         # with an external software (like sysdig)
