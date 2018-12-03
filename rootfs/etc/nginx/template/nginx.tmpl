@@ -1358,11 +1358,11 @@ stream {
 
         {{ if not (empty $all.Cfg.GlobalAuthURL) }}
         location = /_external-auth-global {
-            # internal;
+            internal;
 
             # ngx_auth_request module overrides variables in the parent request,
             # therefore we have to explicitly set this variable again so that when the parent request
-            # resumes it has the orrect value set for this variable so that Lua can pick backend correctly
+            # resumes it has the correct value set for this variable so that Lua can pick backend correctly
             set $proxy_upstream_name $original_proxy_upstream_name;
 
             proxy_pass_request_body     off;
@@ -1377,6 +1377,16 @@ stream {
             proxy_ssl_server_name       on;
             proxy_pass_request_headers  on;
 
+            # Pass the extracted client certificate to the auth provider
+            {{ if not (empty $server.CertificateAuth.CAFileName) }}
+            {{ if $server.CertificateAuth.PassCertToUpstream }}
+            proxy_set_header ssl-client-cert        $ssl_client_escaped_cert;
+            {{ end }}
+            proxy_set_header ssl-client-verify      $ssl_client_verify;
+            proxy_set_header ssl-client-subject-dn  $ssl_client_s_dn;
+            proxy_set_header ssl-client-issuer-dn   $ssl_client_i_dn;
+            {{ end }}
+            
             set $target {{ $all.Cfg.GlobalAuthURL }};
             proxy_pass $target;
         }
