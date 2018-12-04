@@ -159,10 +159,10 @@ func TestGlobalAuthURLParsing(t *testing.T) {
 		input  string
 		expect string
 	}{
-		"no scheme": {"bar", ""},
-		"invalid host": {"http://", ""},
+		"no scheme":                    {"bar", ""},
+		"invalid host":                 {"http://", ""},
 		"invalid host (multiple dots)": {"http://foo..bar.com", ""},
-		"valid URL": {"http://bar.foo.com/external-auth", "http://bar.foo.com/external-auth"},
+		"valid URL":                    {"http://bar.foo.com/external-auth", "http://bar.foo.com/external-auth"},
 	}
 
 	for n, tc := range testCases {
