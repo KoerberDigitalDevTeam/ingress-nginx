@@ -42,11 +42,10 @@ var _ = framework.IngressNginxDescribe("Global Auth URL", func() {
 
 	noAuthSetting := "no-auth-locations"
 	noAuthLocations := barPath
-	
-	
+
 	BeforeEach(func() {
 		f.NewEchoDeployment()
-		f.NewHttpbinDeployment()	
+		f.NewHttpbinDeployment()
 	})
 
 	AfterEach(func() {
@@ -94,14 +93,14 @@ var _ = framework.IngressNginxDescribe("Global Auth URL", func() {
 		})
 
 		It("should return status code 401 when request any protected service", func() {
-	
+
 			By("Sending a request to protected service /foo")
 			fooResp, _, _ := gorequest.New().
 				Get(f.IngressController.HTTPURL+fooPath).
 				Set("Host", host).
 				End()
 			Expect(fooResp.StatusCode).Should(Equal(http.StatusUnauthorized))
-	
+
 			By("Sending a request to protected service /bar")
 			barResp, _, _ := gorequest.New().
 				Get(f.IngressController.HTTPURL+barPath).
@@ -114,14 +113,14 @@ var _ = framework.IngressNginxDescribe("Global Auth URL", func() {
 
 			By("Adding a no-auth-locations for /bar to configMap")
 			f.UpdateNginxConfigMapData(noAuthSetting, noAuthLocations)
-	
+
 			By("Sending a request to protected service /foo")
 			fooResp, _, _ := gorequest.New().
 				Get(f.IngressController.HTTPURL+fooPath).
 				Set("Host", host).
 				End()
 			Expect(fooResp.StatusCode).Should(Equal(http.StatusUnauthorized))
-	
+
 			By("Sending a request to whitelisted service /bar")
 			barResp, _, _ := gorequest.New().
 				Get(f.IngressController.HTTPURL+barPath).
