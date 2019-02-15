@@ -1085,6 +1085,7 @@ func locationApplyAnnotations(loc *ingress.Location, anns *annotations.Ingress) 
 	loc.ConfigurationSnippet = anns.ConfigurationSnippet
 	loc.CorsConfig = anns.CorsConfig
 	loc.ExternalAuth = anns.ExternalAuth
+	loc.ExternalAuthGlobal = anns.ExternalAuthGlobal
 	loc.HTTP2PushPreload = anns.HTTP2PushPreload
 	loc.Proxy = anns.Proxy
 	loc.RateLimit = anns.RateLimit

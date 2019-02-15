@@ -1197,10 +1197,12 @@ stream {
             # set custom variable for external-auth-global
             set $original_proxy_upstream_name "{{ buildUpstreamName $location }}";
 
+            {{ if $location.ExternalAuthGlobal }}  
             # this location requires authentication
             auth_request        /_external-auth-global;
             auth_request_set    $auth_cookie $upstream_http_set_cookie;
             add_header          Set-Cookie $auth_cookie;
+            {{ end }}
             {{ end }}
             {{ end }}
 
