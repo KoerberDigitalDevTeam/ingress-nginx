@@ -109,7 +109,7 @@ var _ = framework.IngressNginxDescribe("Global Auth URL", func() {
 			Expect(barResp.StatusCode).Should(Equal(http.StatusUnauthorized))
 		})
 
-		It("should return status code 200 when request whitelisted service and 401 when request protected service", func() {
+		It("should return status code 200 when request whitelisted (via no-auth-locations) service and 401 when request protected service", func() {
 
 			By("Adding a no-auth-locations for /bar to configMap")
 			f.UpdateNginxConfigMapData(noAuthSetting, noAuthLocations)
@@ -121,6 +121,34 @@ var _ = framework.IngressNginxDescribe("Global Auth URL", func() {
 				End()
 			Expect(fooResp.StatusCode).Should(Equal(http.StatusUnauthorized))
 
+			By("Sending a request to whitelisted service /bar")
+			barResp, _, _ := gorequest.New().
+				Get(f.IngressController.HTTPURL+barPath).
+				Set("Host", host).
+				End()
+			Expect(barResp.StatusCode).Should(Equal(http.StatusOK))
+		})
+
+		It("should return status code 200 when request whitelisted (via ingress annotation) service and 401 when request protected service", func() {
+
+			By("Adding an ingress rule for /bar with annotation enable-global-auth = false")
+			annotations := map[string]string{
+				"nginx.ingress.kubernetes.io/enable-global-auth": "false",
+			}
+			barIng := framework.NewSingleIngress("bar-ingress", barPath, host, f.IngressController.Namespace, echoServiceName, 80, &annotations)
+			f.EnsureIngress(barIng)
+			f.WaitForNginxServer(host,
+				func(server string) bool {
+					return Expect(server).Should(ContainSubstring("location /bar"))
+				})
+	
+			By("Sending a request to protected service /foo")
+			fooResp, _, _ := gorequest.New().
+				Get(f.IngressController.HTTPURL+fooPath).
+				Set("Host", host).
+				End()
+			Expect(fooResp.StatusCode).Should(Equal(http.StatusUnauthorized))
+	
 			By("Sending a request to whitelisted service /bar")
 			barResp, _, _ := gorequest.New().
 				Get(f.IngressController.HTTPURL+barPath).

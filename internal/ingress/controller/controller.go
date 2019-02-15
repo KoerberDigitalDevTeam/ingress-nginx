@@ -468,6 +468,7 @@ func (n *NGINXController) getBackendServers(ingresses []*ingress.Ingress) ([]*in
 						loc.ConfigurationSnippet = anns.ConfigurationSnippet
 						loc.CorsConfig = anns.CorsConfig
 						loc.ExternalAuth = anns.ExternalAuth
+						loc.ExternalAuthGlobal = anns.ExternalAuthGlobal
 						loc.HTTP2PushPreload = anns.HTTP2PushPreload
 						loc.Proxy = anns.Proxy
 						loc.RateLimit = anns.RateLimit
@@ -512,6 +513,7 @@ func (n *NGINXController) getBackendServers(ingresses []*ingress.Ingress) ([]*in
 						ConfigurationSnippet: anns.ConfigurationSnippet,
 						CorsConfig:           anns.CorsConfig,
 						ExternalAuth:         anns.ExternalAuth,
+						ExternalAuthGlobal:   anns.ExternalAuthGlobal,
 						Proxy:                anns.Proxy,
 						RateLimit:            anns.RateLimit,
 						Redirect:             anns.Redirect,
@@ -968,6 +970,7 @@ func (n *NGINXController) createServers(data []*ingress.Ingress,
 					defLoc.ConfigurationSnippet = anns.ConfigurationSnippet
 					defLoc.CorsConfig = anns.CorsConfig
 					defLoc.ExternalAuth = anns.ExternalAuth
+					defLoc.ExternalAuthGlobal = anns.ExternalAuthGlobal
 					defLoc.Proxy = anns.Proxy
 					defLoc.RateLimit = anns.RateLimit
 					// TODO: Redirect and rewrite can affect the catch all behavior, skip for now

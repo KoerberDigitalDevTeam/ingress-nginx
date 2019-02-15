@@ -858,7 +858,7 @@ _**default:**_ "/.well-known/acme-challenge"
 
 A url to an existing service that provides authentication for all the locations.
 Similar to the Ingress rule annotation `nginx.ingress.kubernetes.io/auth-url`.
-Locations that should not get authenticated can be listed using `no-auth-locations`. See [no-auth-locations](#no-auth-locations).
+Locations that should not get authenticated can be listed using `no-auth-locations` See [no-auth-locations](#no-auth-locations). In addition, each service can be excluded from authentication via annotation `enable-global-auth` set to "false".
 _**default:**_ ""
 
 _References:_ [https://github.com/kubernetes/ingress-nginx/blob/master/docs/user-guide/nginx-configuration/annotations.md#external-authentication](https://github.com/kubernetes/ingress-nginx/blob/master/docs/user-guide/nginx-configuration/annotations.md#external-authentication)
