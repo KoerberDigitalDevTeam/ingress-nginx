@@ -72,11 +72,11 @@ func TestAnnotation(t *testing.T) {
 	ing.SetAnnotations(data)
 
 	i, _ := NewParser(&resolver.Mock{}).Parse(ing)
-	u, ok := i.(*Config)
+	u, ok := i.(bool)
 	if !ok {
 		t.Errorf("expected a Config type")
 	}
-	if u.EnableGlobalAuth {
+	if u {
 		t.Errorf("Expected false but returned true")
 	}
 }

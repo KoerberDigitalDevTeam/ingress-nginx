@@ -23,26 +23,6 @@ import (
 	"k8s.io/ingress-nginx/internal/ingress/resolver"
 )
 
-// Config returns external authentication configuration for an Ingress rule
-// type Config struct {
-// 	EnableGlobalAuth bool     `json:"enableGlobalAuth"`
-// }
-
-// // Equal tests for equality between two Config types
-// func (e1 *Config) Equal(e2 *Config) bool {
-// 	if e1 == e2 {
-// 		return true
-// 	}
-// 	if e1 == nil || e2 == nil {
-// 		return false
-// 	}
-// 	if e1.EnableGlobalAuth != e2.EnableGlobalAuth {
-// 		return false
-// 	}
-
-// 	return true
-// }
-
 type authReqGlobal struct {
 	r resolver.Resolver
 }
