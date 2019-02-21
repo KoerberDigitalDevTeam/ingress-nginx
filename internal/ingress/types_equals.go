@@ -401,7 +401,7 @@ func (l1 *Location) Equal(l2 *Location) bool {
 	if !(&l1.ExternalAuth).Equal(&l2.ExternalAuth) {
 		return false
 	}
-	if l1.ExternalAuthGlobal != l2.ExternalAuthGlobal {
+	if l1.EnableGlobalAuth != l2.EnableGlobalAuth {
 		return false
 	}
 	if l1.HTTP2PushPreload != l2.HTTP2PushPreload {

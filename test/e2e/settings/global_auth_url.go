@@ -27,14 +27,14 @@ import (
 	"k8s.io/ingress-nginx/test/e2e/framework"
 )
 
-var _ = framework.IngressNginxDescribe("Global Auth URL", func() {
+var _ = framework.IngressNginxDescribe("Global External Auth", func() {
 	f := framework.NewDefaultFramework("global-auth-url")
 
 	host := "global-auth-url"
 
 	echoServiceName := "http-svc"
 
-	globalAuthURLSetting := "global-auth-url"
+	globalExternalAuthSetting := "global-auth-url"
 
 	fooPath := "/foo"
 	barPath := "/bar"
@@ -55,7 +55,7 @@ var _ = framework.IngressNginxDescribe("Global Auth URL", func() {
 	Context("when global external authentication is configured", func() {
 
 		BeforeEach(func() {
-			globalAuthURL := fmt.Sprintf("http://httpbin.%s.svc.cluster.local:80/status/401", f.IngressController.Namespace)
+			globalExternalAuthURL := fmt.Sprintf("http://httpbin.%s.svc.cluster.local:80/status/401", f.IngressController.Namespace)
 
 			By("Adding an ingress rule for /foo")
 			fooIng := framework.NewSingleIngress("foo-ingress", fooPath, host, f.IngressController.Namespace, echoServiceName, 80, nil)
@@ -74,10 +74,10 @@ var _ = framework.IngressNginxDescribe("Global Auth URL", func() {
 				})
 
 			By("Adding a global-auth-url to configMap")
-			f.UpdateNginxConfigMapData(globalAuthURLSetting, globalAuthURL)
+			f.UpdateNginxConfigMapData(globalExternalAuthSetting, globalExternalAuthURL)
 			f.WaitForNginxServer(host,
 				func(server string) bool {
-					return Expect(server).Should(ContainSubstring(globalAuthURL))
+					return Expect(server).Should(ContainSubstring(globalExternalAuthURL))
 				})
 		})
 

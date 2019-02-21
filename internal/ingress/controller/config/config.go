@@ -563,9 +563,9 @@ type Configuration struct {
 	// should not get authenticated
 	NoAuthLocations string `json:"no-auth-locations"`
 
-	// GlobalAuthURL is a path to the service where all locations
+	// GlobalExternalAuth is a path to the service where all locations
 	// should be authenticated
-	GlobalAuthURL `json:"global-auth-url,omitempty"`
+	GlobalExternalAuth `json:"global-auth-url,omitempty"`
 
 	// DisableLuaRestyWAF disables lua-resty-waf globally regardless
 	// of whether there's an ingress that has enabled the WAF using annotation
@@ -601,7 +601,7 @@ func NewDefault() Configuration {
 	defNginxStatusIpv4Whitelist = append(defNginxStatusIpv4Whitelist, "127.0.0.1")
 	defNginxStatusIpv6Whitelist = append(defNginxStatusIpv6Whitelist, "::1")
 	defProxyDeadlineDuration := time.Duration(5) * time.Second
-	degGlobalAuthURL := GlobalAuthURL{"", ""}
+	degGlobalExternalAuth := GlobalExternalAuth{"", ""}
 
 	cfg := Configuration{
 		AllowBackendServerHeader:         false,
@@ -719,7 +719,7 @@ func NewDefault() Configuration {
 		SyslogPort:                   514,
 		NoTLSRedirectLocations:       "/.well-known/acme-challenge",
 		NoAuthLocations:              "/.well-known/acme-challenge",
-		GlobalAuthURL:                degGlobalAuthURL,
+		GlobalExternalAuth:           degGlobalExternalAuth,
 	}
 
 	if klog.V(5) {
@@ -767,7 +767,7 @@ type TemplateConfig struct {
 	StatusPath   string
 	StreamSocket string
 	
-	GlobalAuthURL              *GlobalAuthURL
+	GlobalExternalAuth         *GlobalExternalAuth
 }
 
 // ListenPorts describe the ports required to run the
@@ -780,7 +780,7 @@ type ListenPorts struct {
 	SSLProxy int
 }
 
-type GlobalAuthURL struct {
+type GlobalExternalAuth struct {
 	URL string `json:"url"`
 	// Host contains the hostname defined in the URL
 	Host string `json:"host"`

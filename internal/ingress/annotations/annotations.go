@@ -84,7 +84,7 @@ type Ingress struct {
 	//TODO: Change this back into an error when https://github.com/imdario/mergo/issues/100 is resolved
 	Denied             *string
 	ExternalAuth       authreq.Config
-	ExternalAuthGlobal bool
+	EnableGlobalAuth   bool
 	HTTP2PushPreload   bool
 	Proxy              proxy.Config
 	RateLimit          ratelimit.Config
@@ -129,7 +129,7 @@ func NewAnnotationExtractor(cfg resolver.Resolver) Extractor {
 			"CustomHTTPErrors":     customhttperrors.NewParser(cfg),
 			"DefaultBackend":       defaultbackend.NewParser(cfg),
 			"ExternalAuth":         authreq.NewParser(cfg),
-			"ExternalAuthGlobal":   authreqglobal.NewParser(cfg),
+			"EnableGlobalAuth":     authreqglobal.NewParser(cfg),
 			"HTTP2PushPreload":     http2pushpreload.NewParser(cfg),
 			"Proxy":                proxy.NewParser(cfg),
 			"RateLimit":            ratelimit.NewParser(cfg),

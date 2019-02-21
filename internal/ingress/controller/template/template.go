@@ -345,14 +345,14 @@ func buildLocation(input interface{}, enforceRegex bool) string {
 	return path
 }
 
-func buildAuthLocation(input interface{}, globalAuthURL string) string {
+func buildAuthLocation(input interface{}, globalExternalAuthURL string) string {
 	location, ok := input.(*ingress.Location)
 	if !ok {
 		klog.Errorf("expected an '*ingress.Location' type but %T was returned", input)
 		return ""
 	}
 
-	if ((location.ExternalAuth.URL == "") && (globalAuthURL == "")) || ( (location.ExternalAuth.URL == "") && (globalAuthURL != "") && (!location.ExternalAuthGlobal)) {
+	if ((location.ExternalAuth.URL == "") && (globalExternalAuthURL == "")) || ((location.ExternalAuth.URL == "") && (globalExternalAuthURL != "") && (!location.EnableGlobalAuth)) {
 		return ""
 	}
 

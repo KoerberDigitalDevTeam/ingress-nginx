@@ -290,40 +290,40 @@ func TestBuildAuthLocation(t *testing.T) {
 	}
 
 	authURL := "foo.com/auth"
-	globalAuthURL := "http://bar.foo.com/external-auth-global"
+	globalExternalAuthURL := "http://bar.foo.com/external-auth-global"
 
 	loc := &ingress.Location{
 		ExternalAuth: authreq.Config{
 			URL: authURL,
 		},
-		Path:               "/cat",
-		ExternalAuthGlobal: true,
+		Path:             "/cat",
+		EnableGlobalAuth: true,
 	}
 
 	encodedAuthURL := strings.Replace(base64.URLEncoding.EncodeToString([]byte(loc.Path)), "=", "", -1)
 	externalAuthPath := fmt.Sprintf("/_external-auth-%v", encodedAuthURL)
 
 	testCases := []struct {
-		localAuthURL     string
-		globalAuthURL    string
-		enableGlobalAuth bool
-		expected         string
+		authURL                  string
+		globalExternalAuthURL    string
+		enableglobalExternalAuth bool
+		expected                 string
 	}{
-		{authURL, globalAuthURL, true, externalAuthPath},
-		{authURL, globalAuthURL, false, externalAuthPath},
+		{authURL, globalExternalAuthURL, true, externalAuthPath},
+		{authURL, globalExternalAuthURL, false, externalAuthPath},
 		{authURL, "", true, externalAuthPath},
 		{authURL, "", false, externalAuthPath},
-		{"", globalAuthURL, true, externalAuthPath},
-		{"", globalAuthURL, false, ""},
+		{"", globalExternalAuthURL, true, externalAuthPath},
+		{"", globalExternalAuthURL, false, ""},
 		{"", "", true, ""},
 		{"", "", false, ""},
 	}
 
 	for _, testCase := range testCases {
-		loc.ExternalAuth.URL = testCase.localAuthURL
-		loc.ExternalAuthGlobal = testCase.enableGlobalAuth
+		loc.ExternalAuth.URL = testCase.authURL
+		loc.EnableGlobalAuth = testCase.enableglobalExternalAuth
 
-		str := buildAuthLocation(loc, testCase.globalAuthURL)
+		str := buildAuthLocation(loc, testCase.globalExternalAuthURL)
 		if str != testCase.expected {
 			t.Errorf("Expected \n'%v'\nbut returned \n'%v'", testCase.expected, str)
 		}
