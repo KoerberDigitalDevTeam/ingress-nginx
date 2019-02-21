@@ -167,7 +167,8 @@ func ReadConfig(src map[string]string) config.Configuration {
 		} else if strings.Contains(authURL.Host, "..") {
 			glog.Warningf("Global auth location denied, reason: invalid url host")
 		} else {
-			to.GlobalAuthURL = val
+			to.GlobalAuthURL.URL = val
+			to.GlobalAuthURL.Host = authURL.Hostname()
 		}
 	}
 

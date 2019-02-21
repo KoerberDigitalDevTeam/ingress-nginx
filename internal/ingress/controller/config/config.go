@@ -565,7 +565,7 @@ type Configuration struct {
 
 	// GlobalAuthURL is a path to the service where all locations
 	// should be authenticated
-	GlobalAuthURL string `json:"global-auth-url,omitempty"`
+	GlobalAuthURL `json:"global-auth-url,omitempty"`
 
 	// DisableLuaRestyWAF disables lua-resty-waf globally regardless
 	// of whether there's an ingress that has enabled the WAF using annotation
@@ -601,6 +601,7 @@ func NewDefault() Configuration {
 	defNginxStatusIpv4Whitelist = append(defNginxStatusIpv4Whitelist, "127.0.0.1")
 	defNginxStatusIpv6Whitelist = append(defNginxStatusIpv6Whitelist, "::1")
 	defProxyDeadlineDuration := time.Duration(5) * time.Second
+	degGlobalAuthURL := GlobalAuthURL{"", ""}
 
 	cfg := Configuration{
 		AllowBackendServerHeader:         false,
@@ -718,7 +719,7 @@ func NewDefault() Configuration {
 		SyslogPort:                   514,
 		NoTLSRedirectLocations:       "/.well-known/acme-challenge",
 		NoAuthLocations:              "/.well-known/acme-challenge",
-		GlobalAuthURL:                "",
+		GlobalAuthURL:                degGlobalAuthURL,
 	}
 
 	if klog.V(5) {
@@ -766,7 +767,7 @@ type TemplateConfig struct {
 	StatusPath   string
 	StreamSocket string
 	
-	GlobalAuthURL              string
+	GlobalAuthURL              *GlobalAuthURL
 }
 
 // ListenPorts describe the ports required to run the
@@ -777,4 +778,10 @@ type ListenPorts struct {
 	Health   int
 	Default  int
 	SSLProxy int
+}
+
+type GlobalAuthURL struct {
+	URL string `json:"url"`
+	// Host contains the hostname defined in the URL
+	Host string `json:"host"`
 }

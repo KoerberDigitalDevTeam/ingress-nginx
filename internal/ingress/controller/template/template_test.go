@@ -290,21 +290,43 @@ func TestBuildAuthLocation(t *testing.T) {
 	}
 
 	authURL := "foo.com/auth"
+	globalAuthURL := "http://bar.foo.com/external-auth-global"
 
 	loc := &ingress.Location{
 		ExternalAuth: authreq.Config{
 			URL: authURL,
 		},
-		Path: "/cat",
+		Path:               "/cat",
+		ExternalAuthGlobal: true,
 	}
 
-	str := buildAuthLocation(loc)
-
 	encodedAuthURL := strings.Replace(base64.URLEncoding.EncodeToString([]byte(loc.Path)), "=", "", -1)
-	expected = fmt.Sprintf("/_external-auth-%v", encodedAuthURL)
+	externalAuthPath := fmt.Sprintf("/_external-auth-%v", encodedAuthURL)
 
-	if str != expected {
-		t.Errorf("Expected \n'%v'\nbut returned \n'%v'", expected, str)
+	testCases := []struct {
+		localAuthURL     string
+		globalAuthURL    string
+		enableGlobalAuth bool
+		expected         string
+	}{
+		{authURL, globalAuthURL, true, externalAuthPath},
+		{authURL, globalAuthURL, false, externalAuthPath},
+		{authURL, "", true, externalAuthPath},
+		{authURL, "", false, externalAuthPath},
+		{"", globalAuthURL, true, externalAuthPath},
+		{"", globalAuthURL, false, ""},
+		{"", "", true, ""},
+		{"", "", false, ""},
+	}
+
+	for _, testCase := range testCases {
+		loc.ExternalAuth.URL = testCase.localAuthURL
+		loc.ExternalAuthGlobal = testCase.enableGlobalAuth
+
+		str := buildAuthLocation(loc, testCase.globalAuthURL)
+		if str != testCase.expected {
+			t.Errorf("Expected \n'%v'\nbut returned \n'%v'", testCase.expected, str)
+		}
 	}
 }
 
@@ -818,7 +840,7 @@ func TestOpentracingPropagateContext(t *testing.T) {
 		&ingress.Location{BackendProtocol: "GRPC"}:  "opentracing_grpc_propagate_context",
 		&ingress.Location{BackendProtocol: "GRPCS"}: "opentracing_grpc_propagate_context",
 		&ingress.Location{BackendProtocol: "AJP"}:   "opentracing_propagate_context",
-		"not a location": "opentracing_propagate_context",
+		"not a location":                            "opentracing_propagate_context",
 	}
 
 	for loc, expectedDirective := range tests {
