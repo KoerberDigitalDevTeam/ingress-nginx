@@ -51,7 +51,7 @@ const (
 	nginxStatusIpv6Whitelist = "nginx-status-ipv6-whitelist"
 	proxyHeaderTimeout       = "proxy-protocol-header-timeout"
 	workerProcesses          = "worker-processes"
-	globalAuthURL            = "global-auth-url"
+	globalExternalAuth       = "global-auth-url"
 )
 
 var (
@@ -152,23 +152,23 @@ func ReadConfig(src map[string]string) config.Configuration {
 		}
 	}
 
-	// Verify that the configured global auth is parsable as URL. if not, set the default value
-	if val, ok := conf[globalAuthURL]; ok {
-		delete(conf, globalAuthURL)
+	// Verify that the configured GlobalExterbalAuth is parsable as URL. if not, set the default value
+	if val, ok := conf[globalExternalAuth]; ok {
+		delete(conf, globalExternalAuth)
 
 		authURL, err := url.Parse(val)
 		if err != nil {
-			glog.Warningf("Global auth location denied, reason: url is not")
+			glog.Warningf("Global auth location denied - %v is not a valid URL: %v", val, err)
 		}
 		if authURL.Scheme == "" {
-			glog.Warningf("Global auth location denied, reason: url scheme is empty")
+			glog.Warningf("Global auth location denied - url scheme is empty.")
 		} else if authURL.Host == "" {
-			glog.Warningf("Global auth location denied, reason: url host is empty")
+			glog.Warningf("Global auth location denied - url host is empty.")
 		} else if strings.Contains(authURL.Host, "..") {
-			glog.Warningf("Global auth location denied, reason: invalid url host")
+			glog.Warningf("Global auth location denied - invalid url host.")
 		} else {
-			to.GlobalAuthURL.URL = val
-			to.GlobalAuthURL.Host = authURL.Hostname()
+			to.GlobalExternalAuth.URL = val
+			to.GlobalExternalAuth.Host = authURL.Hostname()
 		}
 	}
 

@@ -930,7 +930,7 @@ stream {
         {{ range $location := $server.Locations }}
         {{ $path := buildLocation $location $enforceRegex }}
         {{ $proxySetHeader := proxySetHeader $location }}
-        {{ $authPath := buildAuthLocation $location $all.Cfg.GlobalAuthURL.URL }}
+        {{ $authPath := buildAuthLocation $location $all.Cfg.GlobalExternalAuth.URL }}
 
         {{ if not (empty $location.Rewrite.AppRoot)}}
         if ($uri = /) {
@@ -957,8 +957,8 @@ stream {
             proxy_set_header            X-Scheme                $pass_access_scheme;
             {{ end }}
 
-            {{ if (and (not (empty $all.Cfg.GlobalAuthURL.URL)) $location.ExternalAuthGlobal) }}
-            proxy_set_header            Host                    {{ $all.Cfg.GlobalAuthURL.Host }};
+            {{ if (and (not (empty $all.Cfg.GlobalExternalAuth.URL)) $location.EnableGlobalAuth) }}
+            proxy_set_header            Host                    {{ $all.Cfg.GlobalExternalAuth.Host }};
             {{ else }}
             proxy_set_header            Host                    {{ $location.ExternalAuth.Host }};
             {{ end }}
@@ -1007,8 +1007,8 @@ stream {
             {{ $location.ExternalAuth.AuthSnippet }}
             {{ end }}
 
-            {{ if (and (not (empty $all.Cfg.GlobalAuthURL.URL)) $location.ExternalAuthGlobal) }}
-            set $target {{ $all.Cfg.GlobalAuthURL.URL }};
+            {{ if (and (not (empty $all.Cfg.GlobalExternalAuth.URL)) $location.EnableGlobalAuth) }}
+            set $target {{ $all.Cfg.GlobalExternalAuth.URL }};
             {{ else }}
             set $target {{ $location.ExternalAuth.URL }};
             {{ end }}

@@ -97,7 +97,7 @@ type Configuration struct {
 
 	DisableCatchAll bool
 	
-	GlobalAuthURL *ngx_config.GlobalAuthURL
+	GlobalExternalAuth *ngx_config.GlobalExternalAuth
 }
 
 // GetPublishService returns the Service used to set the load-balancer status of Ingresses.
@@ -468,7 +468,7 @@ func (n *NGINXController) getBackendServers(ingresses []*ingress.Ingress) ([]*in
 						loc.ConfigurationSnippet = anns.ConfigurationSnippet
 						loc.CorsConfig = anns.CorsConfig
 						loc.ExternalAuth = anns.ExternalAuth
-						loc.ExternalAuthGlobal = anns.ExternalAuthGlobal
+						loc.EnableGlobalAuth = anns.EnableGlobalAuth
 						loc.HTTP2PushPreload = anns.HTTP2PushPreload
 						loc.Proxy = anns.Proxy
 						loc.RateLimit = anns.RateLimit
@@ -513,7 +513,7 @@ func (n *NGINXController) getBackendServers(ingresses []*ingress.Ingress) ([]*in
 						ConfigurationSnippet: anns.ConfigurationSnippet,
 						CorsConfig:           anns.CorsConfig,
 						ExternalAuth:         anns.ExternalAuth,
-						ExternalAuthGlobal:   anns.ExternalAuthGlobal,
+						EnableGlobalAuth:     anns.EnableGlobalAuth,
 						Proxy:                anns.Proxy,
 						RateLimit:            anns.RateLimit,
 						Redirect:             anns.Redirect,
@@ -970,7 +970,7 @@ func (n *NGINXController) createServers(data []*ingress.Ingress,
 					defLoc.ConfigurationSnippet = anns.ConfigurationSnippet
 					defLoc.CorsConfig = anns.CorsConfig
 					defLoc.ExternalAuth = anns.ExternalAuth
-					defLoc.ExternalAuthGlobal = anns.ExternalAuthGlobal
+					defLoc.EnableGlobalAuth = anns.EnableGlobalAuth
 					defLoc.Proxy = anns.Proxy
 					defLoc.RateLimit = anns.RateLimit
 					// TODO: Redirect and rewrite can affect the catch all behavior, skip for now

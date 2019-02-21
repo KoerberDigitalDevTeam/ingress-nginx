@@ -154,7 +154,7 @@ func TestMergeConfigMapToStruct(t *testing.T) {
 	}
 }
 
-func TestGlobalAuthURLParsing(t *testing.T) {
+func TestGlobalExternalAuthParsing(t *testing.T) {
 	errorURL := ""
 	validURL := "http://bar.foo.com/external-auth"
 
@@ -170,8 +170,8 @@ func TestGlobalAuthURLParsing(t *testing.T) {
 
 	for n, tc := range testCases {
 		cfg := ReadConfig(map[string]string{"global-auth-url": tc.input})
-		if cfg.GlobalAuthURL.URL != tc.expect {
-			t.Errorf("Testing %v. Expected \"%v\" but \"%v\" was returned", n, tc.expect, cfg.GlobalAuthURL)
+		if cfg.GlobalExternalAuth.URL != tc.expect {
+			t.Errorf("Testing %v. Expected \"%v\" but \"%v\" was returned", n, tc.expect, cfg.GlobalExternalAuth.URL)
 		}
 	}
 }
