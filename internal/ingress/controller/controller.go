@@ -97,7 +97,7 @@ type Configuration struct {
 
 	DisableCatchAll bool
 	
-	GlobalAuthURL string
+	GlobalAuthURL *ngx_config.GlobalAuthURL
 }
 
 // GetPublishService returns the Service used to set the load-balancer status of Ingresses.

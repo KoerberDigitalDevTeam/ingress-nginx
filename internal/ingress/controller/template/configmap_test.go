@@ -155,19 +155,22 @@ func TestMergeConfigMapToStruct(t *testing.T) {
 }
 
 func TestGlobalAuthURLParsing(t *testing.T) {
+	errorURL := ""
+	validURL := "http://bar.foo.com/external-auth"
+
 	testCases := map[string]struct {
 		input  string
 		expect string
 	}{
-		"no scheme":                    {"bar", ""},
-		"invalid host":                 {"http://", ""},
-		"invalid host (multiple dots)": {"http://foo..bar.com", ""},
-		"valid URL":                    {"http://bar.foo.com/external-auth", "http://bar.foo.com/external-auth"},
+		"no scheme":                    {"bar", errorURL},
+		"invalid host":                 {"http://", errorURL},
+		"invalid host (multiple dots)": {"http://foo..bar.com", errorURL},
+		"valid URL":                    {"http://bar.foo.com/external-auth", validURL},
 	}
 
 	for n, tc := range testCases {
 		cfg := ReadConfig(map[string]string{"global-auth-url": tc.input})
-		if cfg.GlobalAuthURL != tc.expect {
+		if cfg.GlobalAuthURL.URL != tc.expect {
 			t.Errorf("Testing %v. Expected \"%v\" but \"%v\" was returned", n, tc.expect, cfg.GlobalAuthURL)
 		}
 	}

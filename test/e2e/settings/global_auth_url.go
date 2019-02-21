@@ -19,7 +19,6 @@ package settings
 import (
 	"fmt"
 	"net/http"
-	"strings"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -43,24 +42,14 @@ var _ = framework.IngressNginxDescribe("Global Auth URL", func() {
 	noAuthSetting := "no-auth-locations"
 	noAuthLocations := barPath
 
+	enableGlobalExternalAuthAnnotation := "nginx.ingress.kubernetes.io/enable-global-auth" 
+
 	BeforeEach(func() {
 		f.NewEchoDeployment()
 		f.NewHttpbinDeployment()
 	})
 
 	AfterEach(func() {
-	})
-
-	It("should add value of global-auth-url setting to nginx config", func() {
-
-		globalAuthURL := fmt.Sprintf("http://httpbin.%s.svc.cluster.local:80/status/401", f.IngressController.Namespace)
-
-		f.UpdateNginxConfigMapData(globalAuthURLSetting, globalAuthURL)
-
-		f.WaitForNginxConfiguration(
-			func(cfg string) bool {
-				return strings.Contains(cfg, globalAuthURL)
-			})
 	})
 
 	Context("when global external authentication is configured", func() {
@@ -133,7 +122,7 @@ var _ = framework.IngressNginxDescribe("Global Auth URL", func() {
 
 			By("Adding an ingress rule for /bar with annotation enable-global-auth = false")
 			annotations := map[string]string{
-				"nginx.ingress.kubernetes.io/enable-global-auth": "false",
+				enableGlobalExternalAuthAnnotation : "false",
 			}
 			barIng := framework.NewSingleIngress("bar-ingress", barPath, host, f.IngressController.Namespace, echoServiceName, 80, &annotations)
 			f.EnsureIngress(barIng)

@@ -930,7 +930,7 @@ stream {
         {{ range $location := $server.Locations }}
         {{ $path := buildLocation $location $enforceRegex }}
         {{ $proxySetHeader := proxySetHeader $location }}
-        {{ $authPath := buildAuthLocation $location }}
+        {{ $authPath := buildAuthLocation $location $all.Cfg.GlobalAuthURL.URL }}
 
         {{ if not (empty $location.Rewrite.AppRoot)}}
         if ($uri = /) {
@@ -957,7 +957,11 @@ stream {
             proxy_set_header            X-Scheme                $pass_access_scheme;
             {{ end }}
 
+            {{ if (and (not (empty $all.Cfg.GlobalAuthURL.URL)) $location.ExternalAuthGlobal) }}
+            proxy_set_header            Host                    {{ $all.Cfg.GlobalAuthURL.Host }};
+            {{ else }}
             proxy_set_header            Host                    {{ $location.ExternalAuth.Host }};
+            {{ end }}
             proxy_set_header            X-Original-URL          $scheme://$http_host$request_uri;
             proxy_set_header            X-Original-Method       $request_method;
             proxy_set_header            X-Sent-From             "nginx-ingress-controller";
@@ -1003,7 +1007,11 @@ stream {
             {{ $location.ExternalAuth.AuthSnippet }}
             {{ end }}
 
+            {{ if (and (not (empty $all.Cfg.GlobalAuthURL.URL)) $location.ExternalAuthGlobal) }}
+            set $target {{ $all.Cfg.GlobalAuthURL.URL }};
+            {{ else }}
             set $target {{ $location.ExternalAuth.URL }};
+            {{ end }}
             proxy_pass $target;
         }
         {{ end }}
@@ -1187,20 +1195,6 @@ stream {
             {{- end }}
             {{ end }}
 
-            {{ if not (isLocationInLocationList $location $all.Cfg.NoAuthLocations) }}
-            {{ if not (empty $all.Cfg.GlobalAuthURL) }}
-            # set custom variable for external-auth-global
-            set $original_proxy_upstream_name "{{ buildUpstreamName $location }}";
-
-            {{ if $location.ExternalAuthGlobal }}  
-            # this location requires authentication
-            auth_request        /_external-auth-global;
-            auth_request_set    $auth_cookie $upstream_http_set_cookie;
-            add_header          Set-Cookie $auth_cookie;
-            {{ end }}
-            {{ end }}
-            {{ end }}
-
             {{ if $location.ExternalAuth.SigninURL }}
             set_escape_uri $escaped_request_uri $request_uri;
             error_page 401 = {{ buildAuthSignURL $location.ExternalAuth.SigninURL }};
@@ -1356,42 +1350,6 @@ stream {
             {{ end }}
         }
         {{ end }}
-        {{ end }}
-
-        {{ if not (empty $all.Cfg.GlobalAuthURL) }}
-        location = /_external-auth-global {
-            internal;
-
-            # ngx_auth_request module overrides variables in the parent request,
-            # therefore we have to explicitly set this variable again so that when the parent request
-            # resumes it has the correct value set for this variable so that Lua can pick backend correctly
-            set $proxy_upstream_name $original_proxy_upstream_name;
-
-            proxy_pass_request_body     off;
-            proxy_set_header            Content-Length "";
-
-            proxy_set_header            X-Original-URL          $scheme://$http_host$request_uri;
-            proxy_set_header            X-Original-Method       $request_method;
-            proxy_set_header            X-Sent-From             "nginx-ingress-controller";
-            proxy_set_header            X-Real-IP               $the_real_ip;
-
-            proxy_http_version          1.1;
-            proxy_ssl_server_name       on;
-            proxy_pass_request_headers  on;
-
-            # Pass the extracted client certificate to the auth provider
-            {{ if not (empty $server.CertificateAuth.CAFileName) }}
-            {{ if $server.CertificateAuth.PassCertToUpstream }}
-            proxy_set_header ssl-client-cert        $ssl_client_escaped_cert;
-            {{ end }}
-            proxy_set_header ssl-client-verify      $ssl_client_verify;
-            proxy_set_header ssl-client-subject-dn  $ssl_client_s_dn;
-            proxy_set_header ssl-client-issuer-dn   $ssl_client_i_dn;
-            {{ end }}
-            
-            set $target {{ $all.Cfg.GlobalAuthURL }};
-            proxy_pass $target;
-        }
         {{ end }}
 
         {{ if eq $server.Hostname "_" }}
