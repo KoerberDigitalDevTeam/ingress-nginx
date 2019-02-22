@@ -19,7 +19,6 @@ package template
 import (
 	"fmt"
 	"net"
-	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -33,6 +32,7 @@ import (
 	"k8s.io/ingress-nginx/internal/ingress/controller/config"
 	ing_net "k8s.io/ingress-nginx/internal/net"
 	"k8s.io/ingress-nginx/internal/runtime"
+	"k8s.io/ingress-nginx/internal/ingress/annotations/authreq"
 )
 
 const (
@@ -156,16 +156,9 @@ func ReadConfig(src map[string]string) config.Configuration {
 	if val, ok := conf[globalExternalAuth]; ok {
 		delete(conf, globalExternalAuth)
 
-		authURL, err := url.Parse(val)
-		if err != nil {
-			glog.Warningf("Global auth location denied - %v is not a valid URL: %v", val, err)
-		}
-		if authURL.Scheme == "" {
-			glog.Warningf("Global auth location denied - url scheme is empty.")
-		} else if authURL.Host == "" {
-			glog.Warningf("Global auth location denied - url host is empty.")
-		} else if strings.Contains(authURL.Host, "..") {
-			glog.Warningf("Global auth location denied - invalid url host.")
+		authURL, message := authreq.ParseStringToURL(val)
+		if authURL == nil {
+			glog.Warningf("Global auth location denied - %v.", message)
 		} else {
 			to.GlobalExternalAuth.URL = val
 			to.GlobalExternalAuth.Host = authURL.Hostname()
