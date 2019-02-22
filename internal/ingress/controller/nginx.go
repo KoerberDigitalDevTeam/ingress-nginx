@@ -613,7 +613,6 @@ func (n *NGINXController) OnUpdate(ingressCfg ingress.Configuration) error {
 	tc.Cfg.Checksum = ingressCfg.ConfigurationChecksum
 
 	content, err := n.t.Write(tc)
-
 	if err != nil {
 		return err
 	}

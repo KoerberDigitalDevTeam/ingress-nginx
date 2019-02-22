@@ -347,7 +347,8 @@ func buildAuthLocation(input interface{}, globalExternalAuthURL string) string {
 		return ""
 	}
 
-	if ((location.ExternalAuth.URL == "") && (globalExternalAuthURL == "")) || ((location.ExternalAuth.URL == "") && (globalExternalAuthURL != "") && (!location.EnableGlobalAuth)) {
+	if ((location.ExternalAuth.URL == "") && (globalExternalAuthURL == "")) || 
+		((location.ExternalAuth.URL == "") && (globalExternalAuthURL != "") && (!location.EnableGlobalAuth)) {
 		return ""
 	}
 
