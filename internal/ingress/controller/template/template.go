@@ -126,6 +126,7 @@ var (
 		"buildLuaSharedDictionaries": buildLuaSharedDictionaries,
 		"buildLocation":              buildLocation,
 		"buildAuthLocation":          buildAuthLocation,
+		"shouldApplyGlobalAuth":	  shouldApplyGlobalAuth,
 		"buildAuthResponseHeaders":   buildAuthResponseHeaders,
 		"buildProxyPass":             buildProxyPass,
 		"filterRateLimits":           filterRateLimits,
@@ -352,8 +353,7 @@ func buildAuthLocation(input interface{}, globalExternalAuthURL string) string {
 		return ""
 	}
 
-	if ((location.ExternalAuth.URL == "") && (globalExternalAuthURL == "")) || 
-		((location.ExternalAuth.URL == "") && (globalExternalAuthURL != "") && (!location.EnableGlobalAuth)) {
+	if ((location.ExternalAuth.URL == "") && (!shouldApplyGlobalAuth(input, globalExternalAuthURL))) {
 		return ""
 	}
 
@@ -361,6 +361,21 @@ func buildAuthLocation(input interface{}, globalExternalAuthURL string) string {
 	// removes "=" after encoding
 	str = strings.Replace(str, "=", "", -1)
 	return fmt.Sprintf("/_external-auth-%v", str)
+}
+
+// shouldApplyGlobalAuth returns true only in case when ExternalAuth.URL is not set and 
+// GlobalExternalAuth is set and enabled
+func shouldApplyGlobalAuth(input interface{}, globalExternalAuthURL string) bool {
+	location, ok := input.(*ingress.Location)
+	if !ok {
+		glog.Errorf("expected an '*ingress.Location' type but %T was returned", input)
+	}
+
+	if ((location.ExternalAuth.URL == "") && (globalExternalAuthURL != "") && (location.EnableGlobalAuth)) {
+		return true
+	}
+
+	return false
 }
 
 func buildAuthResponseHeaders(input interface{}) []string {
