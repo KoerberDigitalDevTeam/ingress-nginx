@@ -291,7 +291,7 @@ func TestBuildAuthLocation(t *testing.T) {
 	}
 
 	authURL := "foo.com/auth"
-	globalExternalAuthURL := "http://bar.foo.com/external-auth-global"
+	globalAuthURL := "foo.com/global-auth"
 
 	loc := &ingress.Location{
 		ExternalAuth: authreq.Config{
@@ -305,28 +305,70 @@ func TestBuildAuthLocation(t *testing.T) {
 	externalAuthPath := fmt.Sprintf("/_external-auth-%v", encodedAuthURL)
 
 	testCases := []struct {
+		title 					 string
 		authURL                  string
-		globalExternalAuthURL    string
+		globalAuthURL    		 string
 		enableglobalExternalAuth bool
 		expected                 string
 	}{
-		{authURL, globalExternalAuthURL, true, externalAuthPath},
-		{authURL, globalExternalAuthURL, false, externalAuthPath},
-		{authURL, "", true, externalAuthPath},
-		{authURL, "", false, externalAuthPath},
-		{"", globalExternalAuthURL, true, externalAuthPath},
-		{"", globalExternalAuthURL, false, ""},
-		{"", "", true, ""},
-		{"", "", false, ""},
+		{"authURL, globalAuthURL and enabled", authURL, globalAuthURL, true, externalAuthPath},
+		{"authURL, globalAuthURL and disabled", authURL, globalAuthURL, false, externalAuthPath},
+		{"authURL, empty globalAuthURL and enabled", authURL, "", true, externalAuthPath},
+		{"authURL, empty globalAuthURL and disabled", authURL, "", false, externalAuthPath},
+		{"globalAuthURL and enabled", "", globalAuthURL, true, externalAuthPath},
+		{"globalAuthURL and disabled", "", globalAuthURL, false, ""},
+		{"all empty and enabled", "", "", true, ""},
+		{"all empty and disabled", "", "", false, ""},
 	}
 
 	for _, testCase := range testCases {
 		loc.ExternalAuth.URL = testCase.authURL
 		loc.EnableGlobalAuth = testCase.enableglobalExternalAuth
 
-		str := buildAuthLocation(loc, testCase.globalExternalAuthURL)
+		str := buildAuthLocation(loc, testCase.globalAuthURL)
 		if str != testCase.expected {
-			t.Errorf("Expected \n'%v'\nbut returned \n'%v'", testCase.expected, str)
+			t.Errorf("%v: expected '%v' but returned '%v'", testCase.title, testCase.expected, str)
+		}
+	}
+}
+
+func TestShouldApplyGlobalAuth(t *testing.T) {
+
+	authURL := "foo.com/auth"
+	globalAuthURL := "foo.com/global-auth"
+
+	loc := &ingress.Location{
+		ExternalAuth: authreq.Config{
+			URL: authURL,
+		},
+		Path:             "/cat",
+		EnableGlobalAuth: true,
+	}
+
+	testCases := []struct {
+		title					 string
+		authURL                  string
+		globalAuthURL    		 string
+		enableglobalExternalAuth bool
+		expected                 bool
+	}{
+		{"authURL, globalAuthURL and enabled", authURL, globalAuthURL, true, false},
+		{"authURL, globalAuthURL and disabled", authURL, globalAuthURL, false, false},
+		{"authURL, empty globalAuthURL and enabled", authURL, "", true, false},
+		{"authURL, empty globalAuthURL and disabled", authURL, "", false, false},
+		{"globalAuthURL and enabled", "", globalAuthURL, true, true},
+		{"globalAuthURL and disabled", "", globalAuthURL, false, false},
+		{"all empty and enabled", "", "", true, false},
+		{"all empty and disabled", "", "", false, false},
+	}
+
+	for _, testCase := range testCases {
+		loc.ExternalAuth.URL = testCase.authURL
+		loc.EnableGlobalAuth = testCase.enableglobalExternalAuth
+
+		result := shouldApplyGlobalAuth(loc, testCase.globalAuthURL)
+		if result != testCase.expected {
+			t.Errorf("%v: expected '%v' but returned '%v'", testCase.title, testCase.expected, result)
 		}
 	}
 }
