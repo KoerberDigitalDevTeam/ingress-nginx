@@ -29,10 +29,10 @@ import (
 	"github.com/mitchellh/mapstructure"
 
 	"k8s.io/apimachinery/pkg/util/sets"
+	"k8s.io/ingress-nginx/internal/ingress/annotations/authreq"
 	"k8s.io/ingress-nginx/internal/ingress/controller/config"
 	ing_net "k8s.io/ingress-nginx/internal/net"
 	"k8s.io/ingress-nginx/internal/runtime"
-	"k8s.io/ingress-nginx/internal/ingress/annotations/authreq"
 )
 
 const (
@@ -158,7 +158,7 @@ func ReadConfig(src map[string]string) config.Configuration {
 
 		authURL, message := authreq.ParseStringToURL(val)
 		if authURL == nil {
-			glog.Warningf("Global auth location denied - %v.", message)
+			klog.Warningf("Global auth location denied - %v.", message)
 		} else {
 			to.GlobalExternalAuth.URL = val
 			to.GlobalExternalAuth.Host = authURL.Hostname()

@@ -284,7 +284,7 @@ func TestBuildProxyPass(t *testing.T) {
 func TestBuildAuthLocation(t *testing.T) {
 	invalidType := &ingress.Ingress{}
 	expected := ""
-	actual := buildAuthLocation(invalidType)
+	actual := buildAuthLocation(invalidType, "")
 
 	if !reflect.DeepEqual(expected, actual) {
 		t.Errorf("Expected '%v' but returned '%v'", expected, actual)
@@ -305,9 +305,9 @@ func TestBuildAuthLocation(t *testing.T) {
 	externalAuthPath := fmt.Sprintf("/_external-auth-%v", encodedAuthURL)
 
 	testCases := []struct {
-		title 					 string
+		title                    string
 		authURL                  string
-		globalAuthURL    		 string
+		globalAuthURL            string
 		enableglobalExternalAuth bool
 		expected                 string
 	}{
@@ -346,9 +346,9 @@ func TestShouldApplyGlobalAuth(t *testing.T) {
 	}
 
 	testCases := []struct {
-		title					 string
+		title                    string
 		authURL                  string
-		globalAuthURL    		 string
+		globalAuthURL            string
 		enableglobalExternalAuth bool
 		expected                 bool
 	}{
@@ -883,7 +883,7 @@ func TestOpentracingPropagateContext(t *testing.T) {
 		&ingress.Location{BackendProtocol: "GRPC"}:  "opentracing_grpc_propagate_context",
 		&ingress.Location{BackendProtocol: "GRPCS"}: "opentracing_grpc_propagate_context",
 		&ingress.Location{BackendProtocol: "AJP"}:   "opentracing_propagate_context",
-		"not a location":                            "opentracing_propagate_context",
+		"not a location": "opentracing_propagate_context",
 	}
 
 	for loc, expectedDirective := range tests {

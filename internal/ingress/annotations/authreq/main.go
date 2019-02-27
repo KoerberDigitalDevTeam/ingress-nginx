@@ -174,7 +174,8 @@ func (a authReq) Parse(ing *extensions.Ingress) (interface{}, error) {
 	}, nil
 }
 
-//
+// ParseStringToURL parses the provided string into URL and returns error
+// message in case of failure
 func ParseStringToURL(input string) (*url.URL, string) {
 
 	parsedURL, err := url.Parse(input)
@@ -187,8 +188,7 @@ func ParseStringToURL(input string) (*url.URL, string) {
 		return nil, "url host is empty."
 	} else if strings.Contains(parsedURL.Host, "..") {
 		return nil, "invalid url host."
-	} else {
-		return parsedURL, ""
 	}
+	return parsedURL, ""
 
 }

@@ -761,8 +761,8 @@ type TemplateConfig struct {
 	StatusSocket string
 	StatusPath   string
 	StreamSocket string
-	
-	GlobalExternalAuth         *GlobalExternalAuth
+
+	GlobalExternalAuth *GlobalExternalAuth
 }
 
 // ListenPorts describe the ports required to run the
@@ -775,6 +775,8 @@ type ListenPorts struct {
 	SSLProxy int
 }
 
+// GlobalExternalAuth describe external authentication configuration for the
+// NGINX Ingress controller
 type GlobalExternalAuth struct {
 	URL string `json:"url"`
 	// Host contains the hostname defined in the URL
