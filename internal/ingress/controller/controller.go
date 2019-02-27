@@ -96,7 +96,7 @@ type Configuration struct {
 	DynamicCertificatesEnabled bool
 
 	DisableCatchAll bool
-	
+
 	GlobalExternalAuth *ngx_config.GlobalExternalAuth
 }
 

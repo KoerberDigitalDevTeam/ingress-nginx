@@ -42,7 +42,7 @@ var _ = framework.IngressNginxDescribe("Global External Auth", func() {
 	noAuthSetting := "no-auth-locations"
 	noAuthLocations := barPath
 
-	enableGlobalExternalAuthAnnotation := "nginx.ingress.kubernetes.io/enable-global-auth" 
+	enableGlobalExternalAuthAnnotation := "nginx.ingress.kubernetes.io/enable-global-auth"
 
 	BeforeEach(func() {
 		f.NewEchoDeployment()
@@ -55,10 +55,10 @@ var _ = framework.IngressNginxDescribe("Global External Auth", func() {
 	Context("when global external authentication is configured", func() {
 
 		BeforeEach(func() {
-			globalExternalAuthURL := fmt.Sprintf("http://httpbin.%s.svc.cluster.local:80/status/401", f.IngressController.Namespace)
+			globalExternalAuthURL := fmt.Sprintf("http://httpbin.%s.svc.cluster.local:80/status/401", f.Namespace)
 
 			By("Adding an ingress rule for /foo")
-			fooIng := framework.NewSingleIngress("foo-ingress", fooPath, host, f.IngressController.Namespace, echoServiceName, 80, nil)
+			fooIng := framework.NewSingleIngress("foo-ingress", fooPath, host, f.Namespace, echoServiceName, 80, nil)
 			f.EnsureIngress(fooIng)
 			f.WaitForNginxServer(host,
 				func(server string) bool {
@@ -66,7 +66,7 @@ var _ = framework.IngressNginxDescribe("Global External Auth", func() {
 				})
 
 			By("Adding an ingress rule for /bar")
-			barIng := framework.NewSingleIngress("bar-ingress", barPath, host, f.IngressController.Namespace, echoServiceName, 80, nil)
+			barIng := framework.NewSingleIngress("bar-ingress", barPath, host, f.Namespace, echoServiceName, 80, nil)
 			f.EnsureIngress(barIng)
 			f.WaitForNginxServer(host,
 				func(server string) bool {
@@ -85,14 +85,14 @@ var _ = framework.IngressNginxDescribe("Global External Auth", func() {
 
 			By("Sending a request to protected service /foo")
 			fooResp, _, _ := gorequest.New().
-				Get(f.IngressController.HTTPURL+fooPath).
+				Get(f.GetURL(framework.HTTP)+fooPath).
 				Set("Host", host).
 				End()
 			Expect(fooResp.StatusCode).Should(Equal(http.StatusUnauthorized))
 
 			By("Sending a request to protected service /bar")
 			barResp, _, _ := gorequest.New().
-				Get(f.IngressController.HTTPURL+barPath).
+				Get(f.GetURL(framework.HTTP)+barPath).
 				Set("Host", host).
 				End()
 			Expect(barResp.StatusCode).Should(Equal(http.StatusUnauthorized))
@@ -105,14 +105,14 @@ var _ = framework.IngressNginxDescribe("Global External Auth", func() {
 
 			By("Sending a request to protected service /foo")
 			fooResp, _, _ := gorequest.New().
-				Get(f.IngressController.HTTPURL+fooPath).
+				Get(f.GetURL(framework.HTTP)+fooPath).
 				Set("Host", host).
 				End()
 			Expect(fooResp.StatusCode).Should(Equal(http.StatusUnauthorized))
 
 			By("Sending a request to whitelisted service /bar")
 			barResp, _, _ := gorequest.New().
-				Get(f.IngressController.HTTPURL+barPath).
+				Get(f.GetURL(framework.HTTP)+barPath).
 				Set("Host", host).
 				End()
 			Expect(barResp.StatusCode).Should(Equal(http.StatusOK))
@@ -122,25 +122,25 @@ var _ = framework.IngressNginxDescribe("Global External Auth", func() {
 
 			By("Adding an ingress rule for /bar with annotation enable-global-auth = false")
 			annotations := map[string]string{
-				enableGlobalExternalAuthAnnotation : "false",
+				enableGlobalExternalAuthAnnotation: "false",
 			}
-			barIng := framework.NewSingleIngress("bar-ingress", barPath, host, f.IngressController.Namespace, echoServiceName, 80, &annotations)
+			barIng := framework.NewSingleIngress("bar-ingress", barPath, host, f.Namespace, echoServiceName, 80, &annotations)
 			f.EnsureIngress(barIng)
 			f.WaitForNginxServer(host,
 				func(server string) bool {
 					return Expect(server).Should(ContainSubstring("location /bar"))
 				})
-	
+
 			By("Sending a request to protected service /foo")
 			fooResp, _, _ := gorequest.New().
-				Get(f.IngressController.HTTPURL+fooPath).
+				Get(f.GetURL(framework.HTTP)+fooPath).
 				Set("Host", host).
 				End()
 			Expect(fooResp.StatusCode).Should(Equal(http.StatusUnauthorized))
-	
+
 			By("Sending a request to whitelisted service /bar")
 			barResp, _, _ := gorequest.New().
-				Get(f.IngressController.HTTPURL+barPath).
+				Get(f.GetURL(framework.HTTP)+barPath).
 				Set("Host", host).
 				End()
 			Expect(barResp.StatusCode).Should(Equal(http.StatusOK))
