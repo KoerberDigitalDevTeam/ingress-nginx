@@ -563,9 +563,10 @@ type Configuration struct {
 	// should not get authenticated
 	NoAuthLocations string `json:"no-auth-locations"`
 
-	// GlobalExternalAuth is a path to the service where all locations
-	// should be authenticated
-	GlobalExternalAuth `json:"global-auth-url,omitempty"`
+	// GlobalExternalAuth indicates the access to all locations requires
+	// authentication using an external provider
+	// +optional
+	GlobalExternalAuth GlobalExternalAuth `json:"globalExternalAuth,omitempty"`
 
 	// DisableLuaRestyWAF disables lua-resty-waf globally regardless
 	// of whether there's an ingress that has enabled the WAF using annotation
