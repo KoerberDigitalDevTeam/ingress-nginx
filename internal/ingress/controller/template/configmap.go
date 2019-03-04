@@ -51,7 +51,8 @@ const (
 	nginxStatusIpv6Whitelist = "nginx-status-ipv6-whitelist"
 	proxyHeaderTimeout       = "proxy-protocol-header-timeout"
 	workerProcesses          = "worker-processes"
-	globalExternalAuth       = "global-auth-url"
+	globalAuthURL            = "global-auth-url"
+	globalAuthMethod         = "global-auth-method"
 )
 
 var (
@@ -152,9 +153,9 @@ func ReadConfig(src map[string]string) config.Configuration {
 		}
 	}
 
-	// Verify that the configured GlobalExterbalAuth is parsable as URL. if not, set the default value
-	if val, ok := conf[globalExternalAuth]; ok {
-		delete(conf, globalExternalAuth)
+	// Verify that the configured global external authorization URL is parsable as URL. if not, set the default value
+	if val, ok := conf[globalAuthURL]; ok {
+		delete(conf, globalAuthURL)
 
 		authURL, message := authreq.ParseStringToURL(val)
 		if authURL == nil {
@@ -162,6 +163,17 @@ func ReadConfig(src map[string]string) config.Configuration {
 		} else {
 			to.GlobalExternalAuth.URL = val
 			to.GlobalExternalAuth.Host = authURL.Hostname()
+		}
+	}
+
+	// Verify that the configured global external authorization method is a valid HTTP method. if not, set the default value
+	if val, ok := conf[globalAuthMethod]; ok {
+		delete(conf, globalAuthMethod)
+
+		if len(val) != 0 && !authreq.ValidMethod(val) {
+			klog.Warningf("Global auth location denied - %v.", "invalid HTTP method")
+		} else {
+			to.GlobalExternalAuth.Method = val
 		}
 	}
 

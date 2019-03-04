@@ -154,24 +154,41 @@ func TestMergeConfigMapToStruct(t *testing.T) {
 	}
 }
 
-func TestGlobalExternalAuthParsing(t *testing.T) {
+func TestGlobalExternalAuthURLParsing(t *testing.T) {
 	errorURL := ""
 	validURL := "http://bar.foo.com/external-auth"
 
 	testCases := map[string]struct {
-		input  string
+		url    string
 		expect string
 	}{
 		"no scheme":                    {"bar", errorURL},
 		"invalid host":                 {"http://", errorURL},
 		"invalid host (multiple dots)": {"http://foo..bar.com", errorURL},
-		"valid URL":                    {"http://bar.foo.com/external-auth", validURL},
+		"valid URL":                    {validURL, validURL},
 	}
 
 	for n, tc := range testCases {
-		cfg := ReadConfig(map[string]string{"global-auth-url": tc.input})
+		cfg := ReadConfig(map[string]string{"global-auth-url": tc.url})
 		if cfg.GlobalExternalAuth.URL != tc.expect {
 			t.Errorf("Testing %v. Expected \"%v\" but \"%v\" was returned", n, tc.expect, cfg.GlobalExternalAuth.URL)
+		}
+	}
+}
+
+func TestGlobalExternalAuthMethodParsing(t *testing.T) {
+	testCases := map[string]struct {
+		method string
+		expect string
+	}{
+		"invalid method": {"FOO", ""},
+		"valid method":   {"POST", "POST"},
+	}
+
+	for n, tc := range testCases {
+		cfg := ReadConfig(map[string]string{"global-auth-method": tc.method})
+		if cfg.GlobalExternalAuth.Method != tc.expect {
+			t.Errorf("Testing %v. Expected \"%v\" but \"%v\" was returned", n, tc.expect, cfg.GlobalExternalAuth.Method)
 		}
 	}
 }

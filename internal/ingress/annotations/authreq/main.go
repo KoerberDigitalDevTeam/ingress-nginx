@@ -90,7 +90,7 @@ var (
 	headerRegexp = regexp.MustCompile(`^[a-zA-Z\d\-_]+$`)
 )
 
-func validMethod(method string) bool {
+func ValidMethod(method string) bool {
 	if len(method) == 0 {
 		return false
 	}
@@ -131,7 +131,7 @@ func (a authReq) Parse(ing *extensions.Ingress) (interface{}, error) {
 	}
 
 	authMethod, _ := parser.GetStringAnnotation("auth-method", ing)
-	if len(authMethod) != 0 && !validMethod(authMethod) {
+	if len(authMethod) != 0 && !ValidMethod(authMethod) {
 		return nil, ing_errors.NewLocationDenied("invalid HTTP method")
 	}
 
