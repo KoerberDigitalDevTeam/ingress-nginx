@@ -53,6 +53,7 @@ const (
 	workerProcesses          = "worker-processes"
 	globalAuthURL            = "global-auth-url"
 	globalAuthMethod         = "global-auth-method"
+	globalAuthSignin         = "global-auth-signin"
 )
 
 var (
@@ -174,6 +175,18 @@ func ReadConfig(src map[string]string) config.Configuration {
 			klog.Warningf("Global auth location denied - %v.", "invalid HTTP method")
 		} else {
 			to.GlobalExternalAuth.Method = val
+		}
+	}
+
+	// Verify that the configured global external authorization error page is set and valid. if not, set the default value
+	if val, ok := conf[globalAuthSignin]; ok {
+		delete(conf, globalAuthSignin)
+
+		signinURL, _ := authreq.ParseStringToURL(val)
+		if signinURL == nil {
+			klog.Warningf("Global auth location denied - %v.", "global-auth-signin setting is undefined and will not be set")
+		} else {
+			to.GlobalExternalAuth.SigninURL = val
 		}
 	}
 

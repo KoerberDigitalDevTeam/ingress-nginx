@@ -870,6 +870,12 @@ A HTTP method to use for an existing service that provides authentication for al
 Similar to the Ingress rule annotation `nginx.ingress.kubernetes.io/auth-method`.
 _**default:**_ ""
 
+## global-auth-signin
+
+Sets the location of the error page for an existing service that provides authentication for all the locations.
+Similar to the Ingress rule annotation `nginx.ingress.kubernetes.io/auth-signin`.
+_**default:**_ ""
+
 ## no-auth-locations
 
 A comma-separated list of locations that should not get authenticated.
