@@ -788,7 +788,7 @@ type GlobalExternalAuth struct {
 	URL string `json:"url"`
 	// Host contains the hostname defined in the URL
 	Host            string   `json:"host"`
-	SigninURL       string   `json:"signinUrl"` 
+	SigninURL       string   `json:"signinUrl"`
 	Method          string   `json:"method"`
 	ResponseHeaders []string `json:"responseHeaders,omitempty"`
 	RequestRedirect string   `json:"requestRedirect"`

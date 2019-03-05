@@ -90,6 +90,7 @@ var (
 	headerRegexp = regexp.MustCompile(`^[a-zA-Z\d\-_]+$`)
 )
 
+// ValidMethod checks is the provided string a valid HTTP method
 func ValidMethod(method string) bool {
 	if len(method) == 0 {
 		return false
