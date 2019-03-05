@@ -192,3 +192,25 @@ func TestGlobalExternalAuthMethodParsing(t *testing.T) {
 		}
 	}
 }
+
+func TestGlobalExternalAuthSigninParsing(t *testing.T) {
+	errorURL := ""
+	validURL := "http://bar.foo.com/auth-error-page"
+
+	testCases := map[string]struct {
+		signin string
+		expect string
+	}{
+		"no scheme":                    {"bar", errorURL},
+		"invalid host":                 {"http://", errorURL},
+		"invalid host (multiple dots)": {"http://foo..bar.com", errorURL},
+		"valid URL":                    {validURL, validURL},
+	}
+
+	for n, tc := range testCases {
+		cfg := ReadConfig(map[string]string{"global-auth-signin": tc.signin})
+		if cfg.GlobalExternalAuth.SigninURL != tc.expect {
+			t.Errorf("Testing %v. Expected \"%v\" but \"%v\" was returned", n, tc.expect, cfg.GlobalExternalAuth.SigninURL)
+		}
+	}
+}
