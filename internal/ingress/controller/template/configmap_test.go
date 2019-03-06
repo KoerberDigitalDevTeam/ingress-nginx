@@ -214,3 +214,26 @@ func TestGlobalExternalAuthSigninParsing(t *testing.T) {
 		}
 	}
 }
+
+func TestGlobalExternalAuthResponseHeadersParsing(t *testing.T) {
+	testCases := map[string]struct {
+		headers string
+		expect  []string
+	}{
+		"single header":                 {"h1", []string{"h1"}},
+		"nothing":                       {"", []string{}},
+		"spaces":                        {"  ", []string{}},
+		"two headers":                   {"1,2", []string{"1", "2"}},
+		"two headers and empty entries": {",1,,2,", []string{"1", "2"}},
+		"header with spaces":            {"1 2", []string{}},
+		"header with other bad symbols": {"1+2", []string{}},
+	}
+
+	for n, tc := range testCases {
+		cfg := ReadConfig(map[string]string{"global-auth-response-headers": tc.headers})
+
+		if !reflect.DeepEqual(cfg.GlobalExternalAuth.ResponseHeaders, tc.expect) {
+			t.Errorf("Testing %v. Expected \"%v\" but \"%v\" was returned", n, tc.expect, cfg.GlobalExternalAuth.ResponseHeaders)
+		}
+	}
+}

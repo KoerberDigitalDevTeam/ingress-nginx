@@ -36,24 +36,25 @@ import (
 )
 
 const (
-	customHTTPErrors         = "custom-http-errors"
-	skipAccessLogUrls        = "skip-access-log-urls"
-	whitelistSourceRange     = "whitelist-source-range"
-	proxyRealIPCIDR          = "proxy-real-ip-cidr"
-	bindAddress              = "bind-address"
-	httpRedirectCode         = "http-redirect-code"
-	blockCIDRs               = "block-cidrs"
-	blockUserAgents          = "block-user-agents"
-	blockReferers            = "block-referers"
-	proxyStreamResponses     = "proxy-stream-responses"
-	hideHeaders              = "hide-headers"
-	nginxStatusIpv4Whitelist = "nginx-status-ipv4-whitelist"
-	nginxStatusIpv6Whitelist = "nginx-status-ipv6-whitelist"
-	proxyHeaderTimeout       = "proxy-protocol-header-timeout"
-	workerProcesses          = "worker-processes"
-	globalAuthURL            = "global-auth-url"
-	globalAuthMethod         = "global-auth-method"
-	globalAuthSignin         = "global-auth-signin"
+	customHTTPErrors          = "custom-http-errors"
+	skipAccessLogUrls         = "skip-access-log-urls"
+	whitelistSourceRange      = "whitelist-source-range"
+	proxyRealIPCIDR           = "proxy-real-ip-cidr"
+	bindAddress               = "bind-address"
+	httpRedirectCode          = "http-redirect-code"
+	blockCIDRs                = "block-cidrs"
+	blockUserAgents           = "block-user-agents"
+	blockReferers             = "block-referers"
+	proxyStreamResponses      = "proxy-stream-responses"
+	hideHeaders               = "hide-headers"
+	nginxStatusIpv4Whitelist  = "nginx-status-ipv4-whitelist"
+	nginxStatusIpv6Whitelist  = "nginx-status-ipv6-whitelist"
+	proxyHeaderTimeout        = "proxy-protocol-header-timeout"
+	workerProcesses           = "worker-processes"
+	globalAuthURL             = "global-auth-url"
+	globalAuthMethod          = "global-auth-method"
+	globalAuthSignin          = "global-auth-signin"
+	globalAuthResponseHeaders = "global-auth-response-headers"
 )
 
 var (
@@ -81,6 +82,7 @@ func ReadConfig(src map[string]string) config.Configuration {
 	blockCIDRList := make([]string, 0)
 	blockUserAgentList := make([]string, 0)
 	blockRefererList := make([]string, 0)
+	responseHeaders := make([]string, 0)
 
 	if val, ok := conf[customHTTPErrors]; ok {
 		delete(conf, customHTTPErrors)
@@ -188,6 +190,26 @@ func ReadConfig(src map[string]string) config.Configuration {
 		} else {
 			to.GlobalExternalAuth.SigninURL = val
 		}
+	}
+
+	// Verify that the configured global external authorization response headers are valid. if not, set the default value
+	if val, ok := conf[globalAuthResponseHeaders]; ok {
+		delete(conf, globalAuthResponseHeaders)
+
+		if len(val) != 0 {
+			harr := strings.Split(val, ",")
+			for _, header := range harr {
+				header = strings.TrimSpace(header)
+				if len(header) > 0 {
+					if !authreq.ValidHeader(header) {
+						klog.Warningf("Global auth location denied - %v.", "invalid headers list")
+					} else {
+						responseHeaders = append(responseHeaders, header)
+					}
+				}
+			}
+		}
+		to.GlobalExternalAuth.ResponseHeaders = responseHeaders
 	}
 
 	// Verify that the configured timeout is parsable as a duration. if not, set the default value
