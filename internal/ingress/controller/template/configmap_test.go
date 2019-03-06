@@ -237,3 +237,20 @@ func TestGlobalExternalAuthResponseHeadersParsing(t *testing.T) {
 		}
 	}
 }
+
+func TestGlobalExternalAuthRequestRedirectParsing(t *testing.T) {
+	testCases := map[string]struct {
+		requestRedirect string
+		expect          string
+	}{
+		"empty":                  {"", ""},
+		"valid request redirect": {"http://foo.com/redirect-me", "http://foo.com/redirect-me"},
+	}
+
+	for n, tc := range testCases {
+		cfg := ReadConfig(map[string]string{"global-auth-request-redirect": tc.requestRedirect})
+		if cfg.GlobalExternalAuth.RequestRedirect != tc.expect {
+			t.Errorf("Testing %v. Expected \"%v\" but \"%v\" was returned", n, tc.expect, cfg.GlobalExternalAuth.RequestRedirect)
+		}
+	}
+}
