@@ -155,6 +155,7 @@ The following table shows a configuration option's name, type, and the default v
 |[global-auth-signin](#global-auth-signin)|string|""|
 |[global-auth-response-headers](#global-auth-response-headers)|string|""|
 |[global-auth-request-redirect](#global-auth-request-redirect)|string|""|
+|[global-auth-snippet](#global-auth-snippet)|string|""|
 |[no-auth-locations](#no-auth-locations)|string|"/.well-known/acme-challenge"|
 |[block-cidrs](#block-cidrs)|[]string|""|
 |[block-user-agents](#block-user-agents)|[]string|""|
@@ -888,6 +889,12 @@ _**default:**_ ""
 ## global-auth-request-redirect
 
 Sets the X-Auth-Request-Redirect header value. Applied to all the locations.
+Similar to the Ingress rule annotation `nginx.ingress.kubernetes.io/auth-request-redirect`.
+_**default:**_ ""
+
+## global-auth-snippet
+
+Sets a custom snippet to use with external authentication. Applied to all the locations.
 Similar to the Ingress rule annotation `nginx.ingress.kubernetes.io/auth-request-redirect`.
 _**default:**_ ""
 

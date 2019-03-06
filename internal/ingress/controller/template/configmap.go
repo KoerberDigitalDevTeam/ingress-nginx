@@ -56,6 +56,7 @@ const (
 	globalAuthSignin          = "global-auth-signin"
 	globalAuthResponseHeaders = "global-auth-response-headers"
 	globalAuthRequestRedirect = "global-auth-request-redirect"
+	globalAuthSnippet         = "global-auth-snippet"
 )
 
 var (
@@ -217,6 +218,12 @@ func ReadConfig(src map[string]string) config.Configuration {
 		delete(conf, globalAuthRequestRedirect)
 
 		to.GlobalExternalAuth.RequestRedirect = val
+	}
+
+	if val, ok := conf[globalAuthSnippet]; ok {
+		delete(conf, globalAuthSnippet)
+
+		to.GlobalExternalAuth.AuthSnippet = val
 	}
 
 	// Verify that the configured timeout is parsable as a duration. if not, set the default value

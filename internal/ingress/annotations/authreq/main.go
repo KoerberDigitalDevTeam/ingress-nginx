@@ -104,7 +104,8 @@ func ValidMethod(method string) bool {
 	return false
 }
 
-func validHeader(header string) bool {
+// ValidHeader checks is the provided string satisfies the header's name regex
+func ValidHeader(header string) bool {
 	return headerRegexp.Match([]byte(header))
 }
 
@@ -154,7 +155,7 @@ func (a authReq) Parse(ing *extensions.Ingress) (interface{}, error) {
 		for _, header := range harr {
 			header = strings.TrimSpace(header)
 			if len(header) > 0 {
-				if !validHeader(header) {
+				if !ValidHeader(header) {
 					return nil, ing_errors.NewLocationDenied("invalid headers list")
 				}
 				responseHeaders = append(responseHeaders, header)
