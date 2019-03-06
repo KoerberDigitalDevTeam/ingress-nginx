@@ -154,6 +154,7 @@ The following table shows a configuration option's name, type, and the default v
 |[global-auth-method](#global-auth-method)|string|""|
 |[global-auth-signin](#global-auth-signin)|string|""|
 |[global-auth-response-headers](#global-auth-response-headers)|string|""|
+|[global-auth-request-redirect](#global-auth-request-redirect)|string|""|
 |[no-auth-locations](#no-auth-locations)|string|"/.well-known/acme-challenge"|
 |[block-cidrs](#block-cidrs)|[]string|""|
 |[block-user-agents](#block-user-agents)|[]string|""|
@@ -882,6 +883,12 @@ _**default:**_ ""
 
 Sets the headers to pass to backend once authentication request completes. Applied to all the locations.
 Similar to the Ingress rule annotation `nginx.ingress.kubernetes.io/auth-response-headers`.
+_**default:**_ ""
+
+## global-auth-request-redirect
+
+Sets the X-Auth-Request-Redirect header value. Applied to all the locations.
+Similar to the Ingress rule annotation `nginx.ingress.kubernetes.io/auth-request-redirect`.
 _**default:**_ ""
 
 ## no-auth-locations

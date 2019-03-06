@@ -55,6 +55,7 @@ const (
 	globalAuthMethod          = "global-auth-method"
 	globalAuthSignin          = "global-auth-signin"
 	globalAuthResponseHeaders = "global-auth-response-headers"
+	globalAuthRequestRedirect = "global-auth-request-redirect"
 )
 
 var (
@@ -210,6 +211,12 @@ func ReadConfig(src map[string]string) config.Configuration {
 			}
 		}
 		to.GlobalExternalAuth.ResponseHeaders = responseHeaders
+	}
+
+	if val, ok := conf[globalAuthRequestRedirect]; ok {
+		delete(conf, globalAuthRequestRedirect)
+
+		to.GlobalExternalAuth.RequestRedirect = val
 	}
 
 	// Verify that the configured timeout is parsable as a duration. if not, set the default value
