@@ -372,6 +372,75 @@ func TestShouldApplyGlobalAuth(t *testing.T) {
 	}
 }
 
+func TestSelectExternalAuth(t *testing.T) {
+
+	localExternalAuth := authreq.Config{
+		URL:             "foo.com/auth",
+		Host:            "foo.com",
+		SigninURL:       "foo.com/auth-signin",
+		Method:          "POST",
+		ResponseHeaders: []string{"Local1", "Local2"},
+		RequestRedirect: "http://foo.com/redirect-me",
+		AuthSnippet:     "proxy_set_header My-Custom-Header 42;",
+	}
+
+	globalExternalAuth := config.GlobalExternalAuth{
+		URL:             "foo.com/global-auth",
+		Host:            "foo.com",
+		SigninURL:       "foo.com/global-auth-signin",
+		Method:          "GET",
+		ResponseHeaders: []string{"Global1", "Global2"},
+		RequestRedirect: "http://foo.com/global-redirect-me",
+		AuthSnippet:     "proxy_set_header My-Global-Custom-Header 42;",
+	}
+
+	emptyExternalAuth := authreq.Config{
+		URL:             "",
+		Host:            "",
+		SigninURL:       "",
+		Method:          "",
+		ResponseHeaders: []string{"", ""},
+		RequestRedirect: "",
+		AuthSnippet:     "",
+	}
+
+	loc := &ingress.Location{
+		ExternalAuth:     localExternalAuth,
+		EnableGlobalAuth: true,
+	}
+
+	testCases := map[string]struct {
+		externalAuth       authreq.Config
+		globalExternalAuth interface{}
+		enableGlobalAuth   bool
+		expected           interface{}
+	}{
+		"authURL, globalAuthURL and enabled":        {localExternalAuth, globalExternalAuth, true, localExternalAuth},
+		"authURL, globalAuthURL and disabled":       {localExternalAuth, globalExternalAuth, false, localExternalAuth},
+		"authURL, empty globalAuthURL and enabled":  {localExternalAuth, emptyExternalAuth, true, localExternalAuth},
+		"authURL, empty globalAuthURL and disabled": {localExternalAuth, emptyExternalAuth, false, localExternalAuth},
+		"globalAuthURL and enabled":                 {emptyExternalAuth, globalExternalAuth, true, globalExternalAuth},
+		"globalAuthURL and disabled":                {emptyExternalAuth, globalExternalAuth, false, emptyExternalAuth},
+		"all empty and enabled":                     {emptyExternalAuth, emptyExternalAuth, true, emptyExternalAuth},
+		"all empty and disabled":                    {emptyExternalAuth, emptyExternalAuth, false, emptyExternalAuth},
+	}
+
+	for title, testCase := range testCases {
+		loc.ExternalAuth = testCase.externalAuth
+		loc.EnableGlobalAuth = testCase.enableGlobalAuth
+
+		result := selectExternalAuth(loc, testCase.globalExternalAuth)
+
+		if reflect.TypeOf(result) != reflect.TypeOf(testCase.expected) {
+			t.Errorf("%v: expected type '%v' but returned '%v'", title, reflect.TypeOf(testCase.expected), reflect.TypeOf(result))
+		}
+
+		if !reflect.DeepEqual(result, testCase.expected) {
+			t.Errorf("%v: expected '%v' but returned '%v'", title, testCase.expected, result)
+		}
+	}
+}
+
 func TestBuildAuthResponseHeaders(t *testing.T) {
 	invalidType := &ingress.Ingress{}
 	expected := []string{}
