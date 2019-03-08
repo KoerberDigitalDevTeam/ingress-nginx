@@ -938,6 +938,11 @@ stream {
         {{ $authPath := buildAuthLocation $location $all.Cfg.GlobalExternalAuth.URL }}
         {{ $applyGlobalAuth := shouldApplyGlobalAuth $location $all.Cfg.GlobalExternalAuth.URL }}
 
+        {{ $externalAuth := $all.Cfg.GlobalExternalAuth}}
+        {{ if not ($applyGlobalAuth) }}
+        {{ $externalAuth := $location.ExternalAuth}}
+        {{ end }}
+
         {{ if not (empty $location.Rewrite.AppRoot)}}
         if ($uri = /) {
             return 302 {{ $location.Rewrite.AppRoot }};
@@ -957,17 +962,13 @@ stream {
             proxy_set_header            Content-Length "";
             proxy_set_header            X-Forwarded-Proto "";
 
-            {{ if $location.ExternalAuth.Method }}
-            proxy_method                {{ $location.ExternalAuth.Method }};
+            {{ if $externalAuth.Method }}
+            proxy_method                {{ $externalAuth.Method }};
             proxy_set_header            X-Original-URI          $request_uri;
             proxy_set_header            X-Scheme                $pass_access_scheme;
             {{ end }}
 
-            {{ if $applyGlobalAuth }}
-            proxy_set_header            Host                    {{ $all.Cfg.GlobalExternalAuth.Host }};
-            {{ else }}
-            proxy_set_header            Host                    {{ $location.ExternalAuth.Host }};
-            {{ end }}
+            proxy_set_header            Host                    {{ $externalAuth.Host }};
             proxy_set_header            X-Original-URL          $scheme://$http_host$request_uri;
             proxy_set_header            X-Original-Method       $request_method;
             proxy_set_header            X-Sent-From             "nginx-ingress-controller";
@@ -978,8 +979,8 @@ stream {
             proxy_set_header            X-Forwarded-For        $the_real_ip;
             {{ end }}
 
-            {{ if $location.ExternalAuth.RequestRedirect }}
-            proxy_set_header            X-Auth-Request-Redirect {{ $location.ExternalAuth.RequestRedirect }};
+            {{ if $externalAuth.RequestRedirect }}
+            proxy_set_header            X-Auth-Request-Redirect {{ $externalAuth.RequestRedirect }};
             {{ else }}
             proxy_set_header            X-Auth-Request-Redirect $request_uri;
             {{ end }}
@@ -1009,15 +1010,11 @@ stream {
             proxy_set_header ssl-client-issuer-dn   $ssl_client_i_dn;
             {{ end }}
 
-            {{ if not (empty $location.ExternalAuth.AuthSnippet) }}
-            {{ $location.ExternalAuth.AuthSnippet }}
+            {{ if not (empty $externalAuth.AuthSnippet) }}
+            {{ $externalAuth.AuthSnippet }}
             {{ end }}
 
-            {{ if $applyGlobalAuth }}
-            set $target {{ $all.Cfg.GlobalExternalAuth.URL }};
-            {{ else }}
-            set $target {{ $location.ExternalAuth.URL }};
-            {{ end }}
+            set $target {{ $externalAuth.URL }};
             proxy_pass $target;
         }
         {{ end }}

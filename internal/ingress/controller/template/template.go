@@ -378,26 +378,6 @@ func shouldApplyGlobalAuth(input interface{}, globalExternalAuthURL string) bool
 	return false
 }
 
-// selectExternalAuth returns the struct either of ExternalAuth from location or
-// GlobalExternalAuth from the controller's configuratoion
-func selectExternalAuth(loc interface{}, cfg interface{}) interface{} {
-	location, ok := loc.(*ingress.Location)
-	if !ok {
-		klog.Errorf("expected an '*ingress.Location' type but %T was returned", loc)
-	}
-
-	globalExternalAuth, ok := cfg.(config.GlobalExternalAuth)
-	if !ok {
-		klog.Errorf("expected an '*config.GlobalExternalAuth' type but %T was returned", cfg)
-	}
-
-	if (location.ExternalAuth.URL == "") && (globalExternalAuth.URL != "") && (location.EnableGlobalAuth) {
-		return globalExternalAuth
-	}
-
-	return location.ExternalAuth
-}
-
 func buildAuthResponseHeaders(input interface{}) []string {
 	location, ok := input.(*ingress.Location)
 	res := []string{}
