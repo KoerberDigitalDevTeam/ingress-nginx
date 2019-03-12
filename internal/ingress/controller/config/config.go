@@ -562,7 +562,7 @@ type Configuration struct {
 	// GlobalExternalAuth indicates the access to all locations requires
 	// authentication using an external provider
 	// +optional
-	GlobalExternalAuth GlobalExternalAuth `json:"globalExternalAuth,omitempty"`
+	GlobalExternalAuth GlobalExternalAuth `json:"global-external-auth"`
 
 	// DisableLuaRestyWAF disables lua-resty-waf globally regardless
 	// of whether there's an ingress that has enabled the WAF using annotation
@@ -763,8 +763,6 @@ type TemplateConfig struct {
 	StatusSocket string
 	StatusPath   string
 	StreamSocket string
-
-	GlobalExternalAuth *GlobalExternalAuth
 }
 
 // ListenPorts describe the ports required to run the

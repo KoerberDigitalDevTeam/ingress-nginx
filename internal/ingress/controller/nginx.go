@@ -606,8 +606,6 @@ func (n *NGINXController) OnUpdate(ingressCfg ingress.Configuration) error {
 		StatusSocket: nginx.StatusSocket,
 		StatusPath:   nginx.StatusPath,
 		StreamSocket: nginx.StreamSocket,
-
-		GlobalExternalAuth: n.cfg.GlobalExternalAuth,
 	}
 
 	tc.Cfg.Checksum = ingressCfg.ConfigurationChecksum
