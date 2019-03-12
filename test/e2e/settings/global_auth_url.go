@@ -28,13 +28,13 @@ import (
 )
 
 var _ = framework.IngressNginxDescribe("Global External Auth", func() {
-	f := framework.NewDefaultFramework("global-auth-url")
+	f := framework.NewDefaultFramework("global-external-auth")
 
-	host := "global-auth-url"
+	host := "global-external-auth"
 
 	echoServiceName := "http-svc"
 
-	globalExternalAuthSetting := "global-auth-url"
+	globalExternalAuthURLSetting := "global-auth-url"
 
 	fooPath := "/foo"
 	barPath := "/bar"
@@ -74,7 +74,7 @@ var _ = framework.IngressNginxDescribe("Global External Auth", func() {
 				})
 
 			By("Adding a global-auth-url to configMap")
-			f.UpdateNginxConfigMapData(globalExternalAuthSetting, globalExternalAuthURL)
+			f.UpdateNginxConfigMapData(globalExternalAuthURLSetting, globalExternalAuthURL)
 			f.WaitForNginxServer(host,
 				func(server string) bool {
 					return Expect(server).Should(ContainSubstring(globalExternalAuthURL))
@@ -144,6 +144,58 @@ var _ = framework.IngressNginxDescribe("Global External Auth", func() {
 				Set("Host", host).
 				End()
 			Expect(barResp.StatusCode).Should(Equal(http.StatusOK))
+		})
+
+		It(`should proxy_method method when global-auth-method is configured`, func() {
+
+			globalExternalAuthMethodSetting := "global-auth-method"
+			globalExternalAuthMethod := "GET"
+
+			By("Adding a global-auth-method to configMap")
+			f.UpdateNginxConfigMapData(globalExternalAuthMethodSetting, globalExternalAuthMethod)
+			f.WaitForNginxServer(host,
+				func(server string) bool {
+					return Expect(server).Should(ContainSubstring("proxy_method"))
+				})
+		})
+
+		It(`should add custom error page when global-auth-signin url is configured`, func() {
+
+			globalExternalAuthSigninSetting := "global-auth-signin"
+			globalExternalAuthSignin := "http://foo.com/global-error-page"
+
+			By("Adding a global-auth-signin to configMap")
+			f.UpdateNginxConfigMapData(globalExternalAuthSigninSetting, globalExternalAuthSignin)
+			f.WaitForNginxServer(host,
+				func(server string) bool {
+					return Expect(server).Should(ContainSubstring("error_page 401 = "))
+				})
+		})
+
+		It(`should set request-redirect when global-auth-request-redirect is configured`, func() {
+
+			globalExternalAuthRequestRedirectSetting := "global-auth-request-redirect"
+			globalExternalAuthRequestRedirect := "Foo-Redirect"
+
+			By("Adding a global-auth-request-redirect to configMap")
+			f.UpdateNginxConfigMapData(globalExternalAuthRequestRedirectSetting, globalExternalAuthRequestRedirect)
+			f.WaitForNginxServer(host,
+				func(server string) bool {
+					return Expect(server).Should(ContainSubstring(globalExternalAuthRequestRedirect))
+				})
+		})
+
+		It(`should set snippet when global external auth is configured`, func() {
+
+			globalExternalAuthSnippetSetting := "global-auth-snippet"
+			globalExternalAuthSnippet := "proxy_set_header My-Custom-Header 42;"
+
+			By("Adding a global-auth-snippet to configMap")
+			f.UpdateNginxConfigMapData(globalExternalAuthSnippetSetting, globalExternalAuthSnippet)
+			f.WaitForNginxServer(host,
+				func(server string) bool {
+					return Expect(server).Should(ContainSubstring(globalExternalAuthSnippet))
+				})
 		})
 
 	})
