@@ -378,19 +378,14 @@ func shouldApplyGlobalAuth(input interface{}, globalExternalAuthURL string) bool
 	return false
 }
 
-func buildAuthResponseHeaders(input interface{}) []string {
-	location, ok := input.(*ingress.Location)
+func buildAuthResponseHeaders(headers []string) []string {
 	res := []string{}
-	if !ok {
-		klog.Errorf("expected an '*ingress.Location' type but %T was returned", input)
+
+	if len(headers) == 0 {
 		return res
 	}
 
-	if len(location.ExternalAuth.ResponseHeaders) == 0 {
-		return res
-	}
-
-	for i, h := range location.ExternalAuth.ResponseHeaders {
+	for i, h := range headers {
 		hvar := strings.ToLower(h)
 		hvar = strings.NewReplacer("-", "_").Replace(hvar)
 		res = append(res, fmt.Sprintf("auth_request_set $authHeader%v $upstream_http_%v;", i, hvar))

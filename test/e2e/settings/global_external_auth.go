@@ -172,6 +172,20 @@ var _ = framework.IngressNginxDescribe("Global External Auth", func() {
 				})
 		})
 
+		It(`should add auth headers when global-auth-response-headers is configured`, func() {
+
+			globalExternalAuthResponseHeadersSetting := "global-auth-response-headers"
+			globalExternalAuthResponseHeaders := "Foo, Bar"
+
+			By("Adding a global-auth-response-headers to configMap")
+			f.UpdateNginxConfigMapData(globalExternalAuthResponseHeadersSetting, globalExternalAuthResponseHeaders)
+			f.WaitForNginxServer(host,
+				func(server string) bool {
+					return Expect(server).Should(ContainSubstring("auth_request_set $authHeader0 $upstream_http_foo;")) &&
+						Expect(server).Should(ContainSubstring("auth_request_set $authHeader1 $upstream_http_bar;"))
+				})
+		})
+
 		It(`should set request-redirect when global-auth-request-redirect is configured`, func() {
 
 			globalExternalAuthRequestRedirectSetting := "global-auth-request-redirect"
