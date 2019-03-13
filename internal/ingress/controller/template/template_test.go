@@ -374,24 +374,15 @@ func TestShouldApplyGlobalAuth(t *testing.T) {
 }
 
 func TestBuildAuthResponseHeaders(t *testing.T) {
-	invalidType := &ingress.Ingress{}
-	expected := []string{}
-	actual := buildAuthResponseHeaders(invalidType)
-
-	if !reflect.DeepEqual(expected, actual) {
-		t.Errorf("Expected '%v' but returned '%v'", expected, actual)
-	}
-
-	loc := &ingress.Location{
-		ExternalAuth: authreq.Config{ResponseHeaders: []string{"h1", "H-With-Caps-And-Dashes"}},
-	}
-	headers := buildAuthResponseHeaders(loc)
-	expected = []string{
+	externalAuthResponseHeaders := []string{"h1", "H-With-Caps-And-Dashes"}
+	expected := []string{
 		"auth_request_set $authHeader0 $upstream_http_h1;",
 		"proxy_set_header 'h1' $authHeader0;",
 		"auth_request_set $authHeader1 $upstream_http_h_with_caps_and_dashes;",
 		"proxy_set_header 'H-With-Caps-And-Dashes' $authHeader1;",
 	}
+
+	headers := buildAuthResponseHeaders(externalAuthResponseHeaders)
 
 	if !reflect.DeepEqual(expected, headers) {
 		t.Errorf("Expected \n'%v'\nbut returned \n'%v'", expected, headers)
