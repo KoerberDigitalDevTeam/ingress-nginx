@@ -933,9 +933,9 @@ stream {
         {{ $authPath := buildAuthLocation $location $all.Cfg.GlobalExternalAuth.URL }}
         {{ $applyGlobalAuth := shouldApplyGlobalAuth $location $all.Cfg.GlobalExternalAuth.URL }}
 
-        {{ $externalAuth := $all.Cfg.GlobalExternalAuth}}
-        {{ if not ($applyGlobalAuth) }}
-        {{ $externalAuth := $location.ExternalAuth}}
+        {{ $externalAuth := $location.ExternalAuth }}
+        {{ if eq $applyGlobalAuth true }}
+        {{ $externalAuth = $all.Cfg.GlobalExternalAuth }}
         {{ end }}
 
         {{ if not (empty $location.Rewrite.AppRoot)}}
